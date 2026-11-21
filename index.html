@@ -1,139 +1,113 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AFL | Customer Services Portal</title>
+
+<title>Alpha Freight & Logistics | Customer Portal</title>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* {
+    box-sizing: border-box;
+}
 
 body {
-  font-family: Arial, sans-serif;
-  background: #f4f6fa;
-  color: #17243b;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f3f5f9;
+    color: #17243a;
 }
 
 header {
-  background: #0b2854;
-  color: white;
-  padding: 22px 7%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 15px;
+    background: #0b2854;
+    color: white;
+    padding: 25px 15px;
+    text-align: center;
 }
 
-.logo { font-size: 21px; font-weight: bold; }
-.logo span, footer span { color: #f26a21; }
-
-nav a {
-  color: white;
-  text-decoration: none;
-  margin-left: 18px;
-  font-size: 14px;
+.brand {
+    font-size: 25px;
+    font-weight: bold;
 }
 
-.hero {
-  background: linear-gradient(120deg, #0b2854, #17477d);
-  color: white;
-  text-align: center;
-  padding: 75px 20px;
+.brand span {
+    color: #f26a21;
 }
 
-.hero h1 { font-size: 34px; margin-bottom: 15px; }
-.hero p { line-height: 1.7; max-width: 650px; margin: auto; }
+header p {
+    margin-bottom: 0;
+}
 
 .container {
-  max-width: 1000px;
-  margin: 45px auto;
-  padding: 0 18px;
+    max-width: 850px;
+    margin: 35px auto;
+    padding: 20px;
 }
 
-.section-title { text-align: center; margin-bottom: 25px; }
-
-.services {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 22px;
+.card {
+    background: white;
+    padding: 25px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    box-shadow: 0 3px 12px rgba(0,0,0,.07);
 }
 
-.card, .auth-card {
-  background: white;
-  padding: 27px;
-  border-radius: 10px;
-  box-shadow: 0 4px 18px rgba(0,0,0,.07);
-  border-top: 4px solid #f26a21;
+h2 {
+    color: #0b2854;
 }
 
-.card h3 { color: #0b2854; margin-bottom: 12px; }
-.card p { color: #657187; line-height: 1.6; }
-
-.auth-card { max-width: 480px; margin: auto; }
-
-.auth-card h2 { color: #0b2854; margin-bottom: 18px; }
-
-input {
-  display: block;
-  width: 100%;
-  padding: 13px;
-  margin: 12px 0;
-  border: 1px solid #ccd3df;
-  border-radius: 5px;
-  font-size: 15px;
+input, textarea {
+    width: 100%;
+    padding: 13px;
+    margin: 8px 0 15px;
+    border: 1px solid #ccd2dc;
+    border-radius: 5px;
 }
 
 button {
-  background: #0b2854;
-  color: white;
-  border: none;
-  padding: 13px 20px;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-top: 10px;
+    background: #0b2854;
+    color: white;
+    border: none;
+    padding: 13px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 5px 0;
 }
 
-button:hover { opacity: .9; }
-.primary { background: #f26a21; }
-.full { width: 100%; }
-
-.switch {
-  color: #17477d;
-  cursor: pointer;
-  text-decoration: underline;
-  margin-top: 18px;
-  display: inline-block;
+button:hover {
+    background: #f26a21;
 }
 
-#status {
-  margin-top: 15px;
-  font-size: 14px;
-  line-height: 1.5;
+.secondary {
+    background: #f26a21;
 }
 
-#accountPanel {
-  display: none;
-  background: #eaf3ed;
-  padding: 20px;
-  border-radius: 8px;
-  margin-top: 15px;
-  overflow-wrap: anywhere;
+.hidden {
+    display: none;
+}
+
+.feature {
+    border-left: 5px solid #f26a21;
+    padding: 15px;
+    margin: 15px 0;
+    background: #f5f7fa;
+    border-radius: 5px;
+}
+
+#message {
+    margin-top: 15px;
+    font-weight: bold;
 }
 
 footer {
-  background: #0b2854;
-  color: white;
-  text-align: center;
-  padding: 28px 15px;
-  line-height: 1.8;
-  margin-top: 60px;
-}
-
-@media(max-width:600px) {
-  .hero h1 { font-size: 27px; }
-  nav a { margin-left: 0; margin-right: 12px; }
+    text-align: center;
+    padding: 25px;
+    background: #0b2854;
+    color: white;
 }
 </style>
 </head>
@@ -141,112 +115,181 @@ footer {
 <body>
 
 <header>
-  <div class="logo">ALPHA FREIGHT <span>& LOGISTICS</span></div>
-  <nav>
-    <a href="#home">Home</a>
-    <a href="#services">Services</a>
-    <a href="#account">My Account</a>
-  </nav>
+    <div class="brand">
+        ALPHA FREIGHT <span>& LOGISTICS</span>
+    </div>
+
+    <p>Connecting businesses and destinations through reliable global shipping.</p>
 </header>
 
-<section class="hero" id="home">
-  <h1>Welcome to Alpha Freight & Logistics</h1>
-  <p>
-    Your destination for international connectivity
-    and professional logistics services.
-    Access your services through one customer portal.
-  </p>
-</section>
+<div class="container">
 
-<section class="container" id="services">
-  <div class="section-title">
-    <h2>Our Digital Services</h2>
-    <p>One platform. Convenient access to AFL services.</p>
-  </div>
+    <!-- LOGIN AND REGISTRATION -->
 
-  <div class="services">
-    <div class="card">
-      <h3>USA +1 Phone Numbers</h3>
-      <p>Purchase and manage virtual United States phone
-      numbers with supported calling and messaging features.</p>
-    </div>
+    <section id="authSection">
 
-    <div class="card">
-      <h3>Consignment Video Studio</h3>
-      <p>Personalized consignment videos are prepared
-      and managed by authorized AFL administrators.</p>
-    </div>
-  </div>
-</section>
+        <div class="card">
+            <h2>Welcome to AFL Customer Services</h2>
 
-<section class="container" id="account">
-  <div class="auth-card">
-    <h2 id="formTitle">Customer Registration</h2>
+            <p>
+                Please log in to your account or register
+                to access our customer services.
+            </p>
+        </div>
 
-    <div id="authForms">
-      <form id="registerForm">
-        <input id="registerName" type="text"
-          placeholder="Full name" required>
+        <div class="card">
+            <h2>Customer Login</h2>
 
-        <input id="registerEmail" type="email"
-          placeholder="Email address" required>
+            <form id="loginForm">
+                <input type="email" id="loginEmail"
+                       placeholder="Email address" required>
 
-        <input id="registerPassword" type="password"
-          placeholder="Create password (minimum 6 characters)"
-          minlength="6" required>
+                <input type="password" id="loginPassword"
+                       placeholder="Password" required>
 
-        <button class="primary full" type="submit">
-          Create Account
-        </button>
-      </form>
+                <button type="submit">Login</button>
+            </form>
+        </div>
 
-      <form id="loginForm" style="display:none">
-        <input id="loginEmail" type="email"
-          placeholder="Email address" required>
+        <div class="card">
+            <h2>Create Your Customer Account</h2>
 
-        <input id="loginPassword" type="password"
-          placeholder="Password" required>
+            <form id="registerForm">
+                <input type="text" id="registerName"
+                       placeholder="Full name" required>
 
-        <button class="primary full" type="submit">
-          Sign In
-        </button>
-      </form>
+                <input type="email" id="registerEmail"
+                       placeholder="Email address" required>
 
-      <span class="switch" id="switchForm">
-        Already have an account? Sign in
-      </span>
-    </div>
+                <input type="password" id="registerPassword"
+                       placeholder="Create password"
+                       minlength="6" required>
 
-    <div id="accountPanel">
-      <h3>Account signed in</h3>
-      <p id="accountEmail"></p>
-      <button id="logoutButton">Sign Out</button>
-    </div>
+                <button type="submit">Create Account</button>
+            </form>
+        </div>
 
-    <p id="status" role="status" aria-live="polite"></p>
-  </div>
-</section>
+    </section>
+
+
+    <!-- CUSTOMER DASHBOARD -->
+
+    <section id="customerDashboard" class="hidden">
+
+        <div class="card">
+            <h2>Customer Dashboard</h2>
+
+            <p>Welcome, <strong id="customerName"></strong>.</p>
+
+            <p>You are now logged into your AFL customer account.</p>
+
+            <button onclick="logout()">Logout</button>
+        </div>
+
+        <div class="card">
+            <h2>Available Customer Services</h2>
+
+            <div class="feature">
+                <h3>U.S. +1 Phone Services</h3>
+                <p>
+                    Access our U.S. virtual phone number services.
+                </p>
+                <p>Phone service requests and account management.</p>
+            </div>
+
+            <div class="feature">
+                <h3>Consignment Video Creator</h3>
+                <p>
+                    Access consignment videos assigned to your account.
+                </p>
+                <div id="customerVideos">
+                    Loading your videos...
+                </div>
+            </div>
+
+            <div class="feature">
+                <h3>My Account</h3>
+                <p id="customerEmail"></p>
+                <p>Account status: <strong id="customerStatus"></strong></p>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ADMIN DASHBOARD -->
+
+    <section id="adminDashboard" class="hidden">
+
+        <div class="card">
+            <h2>Administrator Dashboard</h2>
+
+            <p>Welcome to AFL Administration.</p>
+
+            <p>You are signed in with administrator access.</p>
+
+            <button onclick="logout()">Logout</button>
+        </div>
+
+        <div class="card">
+            <h2>Customer Management</h2>
+            <p>Manage customer accounts and customer information.</p>
+        </div>
+
+        <div class="card">
+            <h2>U.S. +1 Phone Services</h2>
+            <p>Manage phone numbers and customer phone orders.</p>
+        </div>
+
+        <div class="card">
+            <h2>Consignment Video Management</h2>
+
+            <p>Create a video record and assign it to a customer.</p>
+
+            <form id="videoForm">
+
+                <input type="text" id="videoTitle"
+                       placeholder="Consignment title" required>
+
+                <input type="text" id="videoCustomer"
+                       placeholder="Customer UID" required>
+
+                <input type="url" id="videoURL"
+                       placeholder="Completed video URL" required>
+
+                <textarea id="videoDescription"
+                          placeholder="Video description"></textarea>
+
+                <button type="submit">Assign Video to Customer</button>
+
+            </form>
+        </div>
+
+    </section>
+
+    <div id="message"></div>
+
+</div>
 
 <footer>
-  <h3>ALPHA FREIGHT <span>& LOGISTICS</span></h3>
-  <p>Connecting businesses and destinations through reliable global shipping.</p>
-  <p>Sea Freight • Air Freight • Road Transport</p>
-  <p>&copy; 2026 Alpha Freight & Logistics. All Rights Reserved.</p>
+    <p>Alpha Freight & Logistics</p>
+    <p>Sea Freight • Air Freight • Road Transport</p>
 </footer>
 
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
 <script>
+
+// FIREBASE CONNECTION
+
 const firebaseConfig = {
-  apiKey: "AIzaSyAsNW6uSkyOhEonOY9YCcDkyTrOaKQkRh0",
-  authDomain: "afl-customer-services-portal.firebaseapp.com",
-  projectId: "afl-customer-services-portal",
-  storageBucket: "afl-customer-services-portal.firebasestorage.app",
-  messagingSenderId: "359638345432",
-  appId: "1:359638345432:web:10087bc847cf13b93ad9ad",
-  measurementId: "G-N6TR0S4VW9"
+    apiKey: "AIzaSyAsNW6uSkyOhEonOY9YCcDkyTrOaKQhRh0",
+    authDomain: "afl-customer-services-portal.firebaseapp.com",
+    projectId: "afl-customer-services-portal",
+    storageBucket: "afl-customer-services-portal.firebasestorage.app",
+    messagingSenderId: "359638345432",
+    appId: "1:359638345432:web:10087bc847cf13b93ad9ad",
+    measurementId: "G-N6TR0S4VW9"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -254,102 +297,282 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-const statusBox = document.getElementById("status");
-const registerForm = document.getElementById("registerForm");
-const loginForm = document.getElementById("loginForm");
-const accountPanel = document.getElementById("accountPanel");
+const authSection = document.getElementById("authSection");
+const customerDashboard = document.getElementById("customerDashboard");
+const adminDashboard = document.getElementById("adminDashboard");
+const message = document.getElementById("message");
 
-function showStatus(message) {
-  statusBox.textContent = message;
+function showMessage(text, error = false) {
+    message.textContent = text;
+    message.style.color = error ? "red" : "green";
 }
 
-document.getElementById("switchForm").addEventListener("click", () => {
-  const registering = registerForm.style.display !== "none";
+function hideAllSections() {
+    authSection.classList.add("hidden");
+    customerDashboard.classList.add("hidden");
+    adminDashboard.classList.add("hidden");
+}
 
-  registerForm.style.display = registering ? "none" : "block";
-  loginForm.style.display = registering ? "block" : "none";
 
-  document.getElementById("formTitle").textContent =
-    registering ? "Customer Sign In" : "Customer Registration";
+// CUSTOMER REGISTRATION
 
-  document.getElementById("switchForm").textContent =
-    registering
-      ? "Need an account? Register"
-      : "Already have an account? Sign in";
+document.getElementById("registerForm")
+.addEventListener("submit", async function(e) {
 
-  showStatus("");
+    e.preventDefault();
+
+    const name = document.getElementById("registerName").value.trim();
+    const email = document.getElementById("registerEmail").value.trim();
+    const password = document.getElementById("registerPassword").value;
+
+    try {
+
+        const result = await auth.createUserWithEmailAndPassword(
+            email,
+            password
+        );
+
+        await db.collection("customers").doc(result.user.uid).set({
+
+            fullName: name,
+            email: email,
+            role: "customer",
+            accountStatus: "active",
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+
+        });
+
+        showMessage("Account created successfully.");
+
+    } catch(error) {
+
+        showMessage(error.message, true);
+
+    }
+
 });
 
-registerForm.addEventListener("submit", async (event) => {
-  event.preventDefault();
 
-  const name = document.getElementById("registerName").value.trim();
-  const email = document.getElementById("registerEmail").value.trim();
-  const password = document.getElementById("registerPassword").value;
+// CUSTOMER AND ADMIN LOGIN
 
-  try {
-    showStatus("Creating your account...");
+document.getElementById("loginForm")
+.addEventListener("submit", async function(e) {
 
-    const result = await auth.createUserWithEmailAndPassword(
-      email, password
-    );
+    e.preventDefault();
 
-    await db.collection("customers").doc(result.user.uid).set({
-      fullName: name,
-      email: email,
-      role: "customer",
-      accountStatus: "active",
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
+    const email = document.getElementById("loginEmail").value.trim();
+    const password = document.getElementById("loginPassword").value;
 
-    showStatus("Your AFL customer account has been created.");
-    registerForm.reset();
+    try {
 
-  } catch (error) {
-    showStatus(error.message);
-  }
+        await auth.signInWithEmailAndPassword(email, password);
+
+    } catch(error) {
+
+        showMessage(error.message, true);
+
+    }
+
 });
 
-loginForm.addEventListener("submit", async (event) => {
-  event.preventDefault();
 
-  const email = document.getElementById("loginEmail").value.trim();
-  const password = document.getElementById("loginPassword").value;
+// CHECK ACCOUNT AND DISPLAY CORRECT DASHBOARD
 
-  try {
-    showStatus("Signing in...");
+auth.onAuthStateChanged(async function(user) {
 
-    await auth.signInWithEmailAndPassword(email, password);
+    hideAllSections();
 
-    showStatus("Sign-in successful.");
+    if (!user) {
+        authSection.classList.remove("hidden");
+        return;
+    }
 
-  } catch (error) {
-    showStatus(error.message);
-  }
+    try {
+
+        const adminDoc = await db.collection("admins")
+            .doc(user.uid).get();
+
+        if (adminDoc.exists && adminDoc.data().status === "active") {
+
+            adminDashboard.classList.remove("hidden");
+            showMessage("Administrator login successful.");
+
+            return;
+        }
+
+        const customerDoc = await db.collection("customers")
+            .doc(user.uid).get();
+
+        if (!customerDoc.exists) {
+
+            await auth.signOut();
+            showMessage("Customer profile not found. Please contact AFL.", true);
+            return;
+
+        }
+
+        const customer = customerDoc.data();
+
+        if (customer.accountStatus !== "active") {
+
+            await auth.signOut();
+            showMessage("Your account is not active. Please contact AFL.", true);
+            return;
+
+        }
+
+        customerDashboard.classList.remove("hidden");
+
+        document.getElementById("customerName").textContent =
+            customer.fullName || "Customer";
+
+        document.getElementById("customerEmail").textContent =
+            customer.email || user.email;
+
+        document.getElementById("customerStatus").textContent =
+            customer.accountStatus;
+
+        loadCustomerVideos(user.uid);
+
+    } catch(error) {
+
+        await auth.signOut();
+        authSection.classList.remove("hidden");
+        showMessage(error.message, true);
+
+    }
+
 });
 
-auth.onAuthStateChanged((user) => {
-  if (user) {
-    accountPanel.style.display = "block";
-    document.getElementById("authForms").style.display = "none";
-    document.getElementById("formTitle").textContent = "My AFL Account";
-    document.getElementById("accountEmail").textContent = user.email;
-  } else {
-    accountPanel.style.display = "none";
-    document.getElementById("authForms").style.display = "block";
-    document.getElementById("formTitle").textContent =
-      "Customer Registration";
-  }
+
+// LOAD VIDEOS ASSIGNED TO CUSTOMER
+
+async function loadCustomerVideos(customerId) {
+
+    const container = document.getElementById("customerVideos");
+
+    container.textContent = "Loading your videos...";
+
+    try {
+
+        const snapshot = await db.collection("consignmentVideos")
+            .where("customerId", "==", customerId)
+            .get();
+
+        container.innerHTML = "";
+
+        if (snapshot.empty) {
+
+            container.textContent =
+                "No completed consignment videos have been assigned to your account yet.";
+
+            return;
+        }
+
+        snapshot.forEach(doc => {
+
+            const video = doc.data();
+
+            const item = document.createElement("div");
+            const title = document.createElement("h4");
+            const description = document.createElement("p");
+            const link = document.createElement("a");
+
+            title.textContent = video.title || "Consignment Video";
+            description.textContent = video.description || "";
+
+            link.href = video.videoURL;
+            link.textContent = "Watch Consignment Video";
+            link.target = "_blank";
+            link.rel = "noopener noreferrer";
+
+            item.appendChild(title);
+            item.appendChild(description);
+            item.appendChild(link);
+
+            container.appendChild(item);
+
+        });
+
+    } catch(error) {
+
+        container.textContent = "Unable to load videos at this time.";
+
+    }
+
+}
+
+
+// ADMIN CREATES AND ASSIGNS A VIDEO
+
+document.getElementById("videoForm")
+.addEventListener("submit", async function(e) {
+
+    e.preventDefault();
+
+    const user = auth.currentUser;
+
+    if (!user) return;
+
+    try {
+
+        const adminDoc = await db.collection("admins")
+            .doc(user.uid).get();
+
+        if (!adminDoc.exists || adminDoc.data().status !== "active") {
+            showMessage("Administrator permission required.", true);
+            return;
+        }
+
+        await db.collection("consignmentVideos").add({
+
+            title: document.getElementById("videoTitle").value.trim(),
+
+            customerId: document.getElementById("videoCustomer").value.trim(),
+
+            videoURL: document.getElementById("videoURL").value.trim(),
+
+            description: document.getElementById("videoDescription").value.trim(),
+
+            status: "completed",
+
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+
+            createdBy: user.uid
+
+        });
+
+        showMessage("Video assigned successfully.");
+
+        document.getElementById("videoForm").reset();
+
+    } catch(error) {
+
+        showMessage(error.message, true);
+
+    }
+
 });
 
-document.getElementById("logoutButton").addEventListener("click", async () => {
-  try {
-    await auth.signOut();
-    showStatus("You have signed out successfully.");
-  } catch (error) {
-    showStatus(error.message);
-  }
-});
+
+// LOGOUT
+
+async function logout() {
+
+    try {
+
+        await auth.signOut();
+
+        showMessage("You have successfully logged out.");
+
+    } catch(error) {
+
+        showMessage(error.message, true);
+
+    }
+
+}
+
 </script>
 
 </body>
