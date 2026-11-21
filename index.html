@@ -217,6 +217,47 @@ footer {
 
     </section>
 
+<!-- CUSTOMER PAYMENT SECTION -->
+
+<div class="card">
+    <h2>Order & Payment</h2>
+
+    <p>Select the AFL service you wish to purchase.</p>
+
+    <form id="paymentForm">
+
+        <label for="serviceType">Select Service</label>
+
+        <select id="serviceType" required
+                style="width:100%;padding:13px;margin:10px 0;">
+            <option value="">Choose a service</option>
+            <option value="Consignment Video">Consignment Video - ₦30,000</option>
+            <option value="U.S. +1 Virtual Number">U.S. +1 Virtual Number - ₦5,000</option>
+        </select>
+
+        <h3>Amount to Pay</h3>
+        <h2 id="servicePrice">₦0</h2>
+
+        <div class="feature">
+            <h3>AFL Payment Account</h3>
+            <p>Bank: PocketApp</p>
+            <p>Account Name: Mathew Joseph</p>
+            <p>Account Number: <strong>9024989733</strong></p>
+        </div>
+
+        <label for="paymentReference">Transaction Reference</label>
+
+        <input type="text" id="paymentReference"
+               placeholder="Enter your bank transfer reference"
+               required>
+
+        <button type="submit">Submit Payment for Verification</button>
+
+    </form>
+
+    <p id="paymentMessage"></p>
+</div>
+
 
     <!-- ADMIN DASHBOARD -->
 
@@ -554,6 +595,71 @@ document.getElementById("videoForm")
 
 });
 
+
+// CUSTOMER PAYMENT SUBMISSION
+
+const serviceType = document.getElementById("serviceType");
+const servicePrice = document.getElementById("servicePrice");
+
+serviceType.addEventListener("change", function() {
+    if (this.value === "Consignment Video") {
+        servicePrice.textContent = "₦30,000";
+    } else if (this.value === "U.S. +1 Virtual Number") {
+        servicePrice.textContent = "₦5,000";
+    } else {
+        servicePrice.textContent = "₦0";
+    }
+});
+
+document.getElementById("paymentForm")
+.addEventListener("submit", async function(e) {
+
+    e.preventDefault();
+
+    const user = auth.currentUser;
+
+    if (!user) {
+        showMessage("Please log in before submitting payment.", true);
+        return;
+    }
+
+    const service = serviceType.value;
+    const amount = service === "Consignment Video" ? 30000 :
+                   service === "U.S. +1 Virtual Number" ? 5000 : 0;
+
+    const reference = document.getElementById("paymentReference")
+        .value.trim();
+
+    if (!amount || !reference) {
+        showMessage("Please select a service and enter your payment reference.", true);
+        return;
+    }
+
+    try {
+
+        await db.collection("payments").add({
+            customerId: user.uid,
+            customerEmail: user.email,
+            service: service,
+            amount: amount,
+            currency: "NGN",
+            paymentReference: reference,
+            status: "pending",
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        document.getElementById("paymentMessage").textContent =
+            "Your payment details have been submitted. AFL will verify your transfer.";
+
+        this.reset();
+        servicePrice.textContent = "₦0";
+
+    } catch(error) {
+        document.getElementById("paymentMessage").textContent =
+            "Payment submission failed: " + error.message;
+    }
+
+});
 
 // LOGOUT
 
