@@ -455,7 +455,9 @@ auth.onAuthStateChanged(async function(user) {
 
         const customer = customerDoc.data();
 
-        if (customer.accountStatus !== "active") {
+      
+});  
+if (customer.accountStatus !== "active") {
 
             await auth.signOut();
             showMessage("Your account is not active. Please contact AFL.", true);
@@ -485,7 +487,6 @@ auth.onAuthStateChanged(async function(user) {
     }
 
 });
-
 
 // LOAD VIDEOS ASSIGNED TO CUSTOMER
 
