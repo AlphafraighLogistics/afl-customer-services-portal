@@ -1,0 +1,213 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AFL | Create Customer Account</title>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f3f5f9;
+    color: #17243a;
+}
+
+header {
+    background: #0b2854;
+    color: white;
+    text-align: center;
+    padding: 25px 15px;
+}
+
+.brand {
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.brand span { color: #f26a21; }
+
+.container {
+    max-width: 480px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+.card {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 3px 12px rgba(0,0,0,.07);
+}
+
+h2 { color: #0b2854; }
+
+input {
+    width: 100%;
+    padding: 13px;
+    margin: 8px 0 15px;
+    border: 1px solid #ccd2dc;
+    border-radius: 5px;
+}
+
+button {
+    width: 100%;
+    background: #0b2854;
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover { background: #f26a21; }
+
+#message {
+    margin-top: 15px;
+    font-weight: bold;
+}
+
+a { color: #f26a21; }
+
+footer {
+    text-align: center;
+    padding: 25px;
+    background: #0b2854;
+    color: white;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="brand">
+        ALPHA FREIGHT <span>& LOGISTICS</span>
+    </div>
+    <p>Customer Account Registration</p>
+</header>
+
+<div class="container">
+    <div class="card">
+        <h2>Create Your Customer Account</h2>
+        <p>Register to access AFL customer services.</p>
+
+        <form id="registerForm">
+
+            <input type="text" id="fullName"
+                   placeholder="Full name" required>
+
+            <input type="email" id="email"
+                   placeholder="Email address" required>
+
+            <input type="password" id="password"
+                   placeholder="Create password"
+                   minlength="6" required>
+
+            <input type="password" id="confirmPassword"
+                   placeholder="Confirm password"
+                   minlength="6" required>
+
+            <button type="submit">Create Account</button>
+
+        </form>
+
+        <p id="message"></p>
+
+        <p>Already have an account?
+            <a href="index.html">Login here</a>
+        </p>
+    </div>
+</div>
+
+<footer>
+    <p>Alpha Freight & Logistics</p>
+    <p>Sea Freight • Air Freight • Road Transport</p>
+</footer>
+
+<script>
+
+// FIREBASE CONNECTION
+
+const firebaseConfig = {
+    apiKey: "AIzaSyAsNW6uSkyOhEonOY9YCcDkyTrOaKQkRh0",
+    authDomain: "afl-customer-services-portal.firebaseapp.com",
+    projectId: "afl-customer-services-portal",
+    storageBucket: "afl-customer-services-portal.firebasestorage.app",
+    messagingSenderId: "359638345432",
+    appId: "1:359638345432:web:10087bc847cf13b93ad9ad",
+    measurementId: "G-N6TR0S4VW9"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+document.getElementById("registerForm")
+.addEventListener("submit", async function(e) {
+
+    e.preventDefault();
+
+    const name = document.getElementById("fullName").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    const confirmPassword = document.getElementById("confirmPassword").value;
+    const message = document.getElementById("message");
+
+    if (password !== confirmPassword) {
+        message.style.color = "red";
+        message.textContent = "Passwords do not match.";
+        return;
+    }
+
+    try {
+
+        message.style.color = "#0b2854";
+        message.textContent = "Creating your account...";
+
+        const result = await auth.createUserWithEmailAndPassword(
+            email,
+            password
+        );
+
+        await db.collection("customers").doc(result.user.uid).set({
+
+            fullName: name,
+            email: email,
+            role: "customer",
+            accountStatus: "active",
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+
+        });
+
+        message.style.color = "green";
+        message.textContent = "Account created successfully. You can now access the customer portal.";
+
+        document.getElementById("registerForm").reset();
+
+        setTimeout(function() {
+            window.location.href = "index.html";
+        }, 2000);
+
+    } catch(error) {
+
+        message.style.color = "red";
+        message.textContent = error.message;
+
+    }
+
+});
+
+</script>
+
+</body>
+</html>
