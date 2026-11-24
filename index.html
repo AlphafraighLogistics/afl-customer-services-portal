@@ -124,53 +124,43 @@ footer {
 
 <div class="container">
 
-    <!-- LOGIN AND REGISTRATION -->
 
-    <section id="authSection">
+<!-- CUSTOMER LOGIN ONLY -->
 
-        <div class="card">
-            <h2>Welcome to AFL Customer Services</h2>
+<section id="authSection">
 
-            <p>
-                Please log in to your account or register
-                to access our customer services.
-            </p>
-        </div>
+    <div class="card">
+        <h2>Welcome to AFL Customer Services</h2>
+        <p>Please log in to access your customer services.</p>
+    </div>
 
-        <div class="card">
-            <h2>Customer Login</h2>
+    <div class="card">
+        <h2>Customer Login</h2>
 
-            <form id="loginForm">
-                <input type="email" id="loginEmail"
-                       placeholder="Email address" required>
+        <form id="loginForm">
 
-                <input type="password" id="loginPassword"
-                       placeholder="Password" required>
+            <input type="email" id="loginEmail"
+                   placeholder="Email address" required>
 
-                <button type="submit">Login</button>
-            </form>
-        </div>
+            <input type="password" id="loginPassword"
+                   placeholder="Password" required>
 
-        <div class="card">
-            <h2>Create Your Customer Account</h2>
+            <button type="submit">Login</button>
 
-            <form id="registerForm">
-                <input type="text" id="registerName"
-                       placeholder="Full name" required>
+        </form>
 
-                <input type="email" id="registerEmail"
-                       placeholder="Email address" required>
+        <p style="text-align:center; margin-top:20px;">
+            Don't have an account?
+            <a href="register.html"
+               style="color:#f26a21;font-weight:bold;">
+                Create Account
+            </a>
+        </p>
 
-                <input type="password" id="registerPassword"
-                       placeholder="Create password"
-                       minlength="6" required>
+    </div>
 
-                <button type="submit">Create Account</button>
-            </form>
-        </div>
-
-    </section>
-
+</section>
+   
 
     <!-- CUSTOMER DASHBOARD -->
 
@@ -259,57 +249,6 @@ footer {
     </section>
 
 
-
-    <!-- ADMIN DASHBOARD -->
-
-    <section id="adminDashboard" class="hidden">
-
-        <div class="card">
-            <h2>Administrator Dashboard</h2>
-
-            <p>Welcome to AFL Administration.</p>
-
-            <p>You are signed in with administrator access.</p>
-
-            <button onclick="logout()">Logout</button>
-        </div>
-
-        <div class="card">
-            <h2>Customer Management</h2>
-            <p>Manage customer accounts and customer information.</p>
-        </div>
-
-        <div class="card">
-            <h2>U.S. +1 Phone Services</h2>
-            <p>Manage phone numbers and customer phone orders.</p>
-        </div>
-
-        <div class="card">
-            <h2>Consignment Video Management</h2>
-
-            <p>Create a video record and assign it to a customer.</p>
-
-            <form id="videoForm">
-
-                <input type="text" id="videoTitle"
-                       placeholder="Consignment title" required>
-
-                <input type="text" id="videoCustomer"
-                       placeholder="Customer UID" required>
-
-                <input type="url" id="videoURL"
-                       placeholder="Completed video URL" required>
-
-                <textarea id="videoDescription"
-                          placeholder="Video description"></textarea>
-
-                <button type="submit">Assign Video to Customer</button>
-
-            </form>
-        </div>
-
-    </section>
-
     <div id="message"></div>
 
 </div>
@@ -341,7 +280,7 @@ const db = firebase.firestore();
 
 const authSection = document.getElementById("authSection");
 const customerDashboard = document.getElementById("customerDashboard");
-const adminDashboard = document.getElementById("adminDashboard");
+
 const message = document.getElementById("message");
 
 function showMessage(text, error = false) {
@@ -352,47 +291,7 @@ function showMessage(text, error = false) {
 function hideAllSections() {
     authSection.classList.add("hidden");
     customerDashboard.classList.add("hidden");
-    adminDashboard.classList.add("hidden");
 }
-
-
-// CUSTOMER REGISTRATION
-
-document.getElementById("registerForm")
-.addEventListener("submit", async function(e) {
-
-    e.preventDefault();
-
-    const name = document.getElementById("registerName").value.trim();
-    const email = document.getElementById("registerEmail").value.trim();
-    const password = document.getElementById("registerPassword").value;
-
-    try {
-
-        const result = await auth.createUserWithEmailAndPassword(
-            email,
-            password
-        );
-
-        await db.collection("customers").doc(result.user.uid).set({
-
-            fullName: name,
-            email: email,
-            role: "customer",
-            accountStatus: "active",
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-
-        });
-
-        showMessage("Account created successfully.");
-
-    } catch(error) {
-
-        showMessage(error.message, true);
-
-    }
-
-});
 
 
 // CUSTOMER AND ADMIN LOGIN
@@ -417,8 +316,7 @@ document.getElementById("loginForm")
 
 });
 
-
-// CHECK ACCOUNT AND DISPLAY CORRECT DASHBOARD
+// CHECK CUSTOMER ACCOUNT AND DISPLAY DASHBOARD
 
 auth.onAuthStateChanged(async function(user) {
 
@@ -431,35 +329,26 @@ auth.onAuthStateChanged(async function(user) {
 
     try {
 
-        const adminDoc = await db.collection("admins")
-            .doc(user.uid).get();
-
-        if (adminDoc.exists && adminDoc.data().status === "active") {
-
-            adminDashboard.classList.remove("hidden");
-            showMessage("Administrator login successful.");
-
-            return;
-        }
-
         const customerDoc = await db.collection("customers")
             .doc(user.uid).get();
 
         if (!customerDoc.exists) {
 
             await auth.signOut();
+            authSection.classList.remove("hidden");
             showMessage("Customer profile not found. Please contact AFL.", true);
             return;
 
         }
 
- const customer = customerDoc.data();
+        const customer = customerDoc.data();
 
-if (customer.accountStatus !== "active") {
+        if (customer.accountStatus !== "active") {
 
-    await auth.signOut();
-    showMessage("Your account is not active. Please contact AFL.", true);
-    return;
+            await auth.signOut();
+            authSection.classList.remove("hidden");
+            showMessage("Your account is not active. Please contact AFL.", true);
+            return;
 
         }
 
@@ -542,59 +431,6 @@ async function loadCustomerVideos(customerId) {
     }
 
 }
-
-
-// ADMIN CREATES AND ASSIGNS A VIDEO
-
-document.getElementById("videoForm")
-.addEventListener("submit", async function(e) {
-
-    e.preventDefault();
-
-    const user = auth.currentUser;
-
-    if (!user) return;
-
-    try {
-
-        const adminDoc = await db.collection("admins")
-            .doc(user.uid).get();
-
-        if (!adminDoc.exists || adminDoc.data().status !== "active") {
-            showMessage("Administrator permission required.", true);
-            return;
-        }
-
-        await db.collection("consignmentVideos").add({
-
-            title: document.getElementById("videoTitle").value.trim(),
-
-            customerId: document.getElementById("videoCustomer").value.trim(),
-
-            videoURL: document.getElementById("videoURL").value.trim(),
-
-            description: document.getElementById("videoDescription").value.trim(),
-
-            status: "completed",
-
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-
-            createdBy: user.uid
-
-        });
-
-        showMessage("Video assigned successfully.");
-
-        document.getElementById("videoForm").reset();
-
-    } catch(error) {
-
-        showMessage(error.message, true);
-
-    }
-
-});
-
 
 // CUSTOMER PAYMENT SUBMISSION
 
