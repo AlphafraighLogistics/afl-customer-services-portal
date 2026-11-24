@@ -1,0 +1,399 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AFL | Administrator Portal</title>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f3f5f9;
+    color: #17243a;
+}
+
+header {
+    background: #0b2854;
+    color: white;
+    text-align: center;
+    padding: 25px 15px;
+}
+
+.brand {
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.brand span { color: #f26a21; }
+
+.container {
+    max-width: 950px;
+    margin: 35px auto;
+    padding: 20px;
+}
+
+.card {
+    background: white;
+    padding: 25px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    box-shadow: 0 3px 12px rgba(0,0,0,.07);
+}
+
+h2 { color: #0b2854; }
+
+input, textarea {
+    width: 100%;
+    padding: 13px;
+    margin: 8px 0 15px;
+    border: 1px solid #ccd2dc;
+    border-radius: 5px;
+}
+
+button {
+    background: #0b2854;
+    color: white;
+    border: none;
+    padding: 13px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 5px 0;
+}
+
+button:hover { background: #f26a21; }
+
+.hidden { display: none; }
+
+.feature {
+    background: #f5f7fa;
+    border-left: 5px solid #f26a21;
+    padding: 15px;
+    margin: 15px 0;
+}
+
+#message {
+    margin-top: 15px;
+    font-weight: bold;
+}
+
+footer {
+    text-align: center;
+    padding: 25px;
+    background: #0b2854;
+    color: white;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="brand">
+        ALPHA FREIGHT <span>& LOGISTICS</span>
+    </div>
+    <p>Administrator Management Portal</p>
+</header>
+
+<div class="container">
+
+    <section id="loginSection">
+        <div class="card">
+            <h2>Administrator Login</h2>
+
+            <form id="adminLoginForm">
+                <input type="email" id="adminEmail"
+                       placeholder="Administrator email" required>
+
+                <input type="password" id="adminPassword"
+                       placeholder="Password" required>
+
+                <button type="submit">Admin Login</button>
+            </form>
+        </div>
+    </section>
+
+    <section id="adminDashboard" class="hidden">
+
+        <div class="card">
+            <h2>Administrator Dashboard</h2>
+            <p>Welcome to AFL Administration.</p>
+            <button onclick="logout()">Logout</button>
+        </div>
+
+        <div class="card">
+            <h2>Customer Management</h2>
+            <button onclick="loadCustomers()">Load Customers</button>
+            <div id="customerList">Customer records will appear here.</div>
+        </div>
+
+        <div class="card">
+            <h2>U.S. +1 Phone Orders</h2>
+            <button onclick="loadRecords('phoneOrders','phoneOrderList')">
+                Load Phone Orders
+            </button>
+            <div id="phoneOrderList">Phone orders will appear here.</div>
+        </div>
+
+        <div class="card">
+            <h2>Consignment Video Management</h2>
+
+            <form id="videoForm">
+                <input type="text" id="videoTitle"
+                       placeholder="Consignment title" required>
+
+                <input type="text" id="videoCustomer"
+                       placeholder="Customer UID" required>
+
+                <input type="url" id="videoURL"
+                       placeholder="Completed video URL" required>
+
+                <textarea id="videoDescription"
+                          placeholder="Video description"></textarea>
+
+                <button type="submit">Assign Video to Customer</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2>Payment Management</h2>
+            <button onclick="loadRecords('payments','paymentList')">
+                Load Payments
+            </button>
+            <div id="paymentList">Payment records will appear here.</div>
+        </div>
+
+    </section>
+
+    <div id="message"></div>
+
+</div>
+
+<footer>
+    <p>Alpha Freight & Logistics</p>
+    <p>Administrator Portal</p>
+</footer>
+
+<script>
+
+// FIREBASE CONNECTION
+
+const firebaseConfig = {
+    apiKey: "AIzaSyAsNW6uSkyOhEonOY9YCcDkyTrOaKQkRh0",
+    authDomain: "afl-customer-services-portal.firebaseapp.com",
+    projectId: "afl-customer-services-portal",
+    storageBucket: "afl-customer-services-portal.firebasestorage.app",
+    messagingSenderId: "359638345432",
+    appId: "1:359638345432:web:10087bc847cf13b93ad9ad",
+    measurementId: "G-N6TR0S4VW9"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+const loginSection = document.getElementById("loginSection");
+const adminDashboard = document.getElementById("adminDashboard");
+const message = document.getElementById("message");
+
+function showMessage(text, error = false) {
+    message.textContent = text;
+    message.style.color = error ? "red" : "green";
+}
+
+// ADMIN LOGIN
+
+document.getElementById("adminLoginForm")
+.addEventListener("submit", async function(e) {
+
+    e.preventDefault();
+
+    const email = document.getElementById("adminEmail").value.trim();
+    const password = document.getElementById("adminPassword").value;
+
+    try {
+        await auth.signInWithEmailAndPassword(email, password);
+    } catch(error) {
+        showMessage(error.message, true);
+    }
+
+});
+
+// VERIFY ADMIN ACCOUNT
+
+auth.onAuthStateChanged(async function(user) {
+
+    loginSection.classList.remove("hidden");
+    adminDashboard.classList.add("hidden");
+
+    if (!user) return;
+
+    try {
+
+        const adminDoc = await db.collection("admins")
+            .doc(user.uid).get();
+
+        if (!adminDoc.exists ||
+            adminDoc.data().status !== "active") {
+
+            await auth.signOut();
+            showMessage("Administrator access denied.", true);
+            return;
+        }
+
+        loginSection.classList.add("hidden");
+        adminDashboard.classList.remove("hidden");
+
+        showMessage("Administrator login successful.");
+
+    } catch(error) {
+
+        await auth.signOut();
+        showMessage(error.message, true);
+
+    }
+
+});
+
+// LOAD CUSTOMERS
+
+async function loadCustomers() {
+
+    const container = document.getElementById("customerList");
+    container.textContent = "Loading customers...";
+
+    try {
+
+        const snapshot = await db.collection("customers").get();
+
+        container.innerHTML = "";
+
+        if (snapshot.empty) {
+            container.textContent = "No customers found.";
+            return;
+        }
+
+        snapshot.forEach(doc => {
+
+            const customer = doc.data();
+            const item = document.createElement("div");
+
+            item.className = "feature";
+            item.textContent =
+                (customer.fullName || "Customer") +
+                " | " + (customer.email || "") +
+                " | " + (customer.accountStatus || "");
+
+            container.appendChild(item);
+
+        });
+
+    } catch(error) {
+        container.textContent = error.message;
+    }
+
+}
+
+// LOAD ADMIN RECORDS
+
+async function loadRecords(collectionName, elementId) {
+
+    const container = document.getElementById(elementId);
+    container.textContent = "Loading records...";
+
+    try {
+
+        const snapshot = await db.collection(collectionName).get();
+
+        container.innerHTML = "";
+
+        if (snapshot.empty) {
+            container.textContent = "No records found.";
+            return;
+        }
+
+        snapshot.forEach(doc => {
+
+            const item = document.createElement("div");
+            item.className = "feature";
+            item.textContent = JSON.stringify(doc.data());
+
+            container.appendChild(item);
+
+        });
+
+    } catch(error) {
+        container.textContent = error.message;
+    }
+
+}
+
+// ASSIGN CONSIGNMENT VIDEO
+
+document.getElementById("videoForm")
+.addEventListener("submit", async function(e) {
+
+    e.preventDefault();
+
+    const user = auth.currentUser;
+
+    if (!user) return;
+
+    try {
+
+        const adminDoc = await db.collection("admins")
+            .doc(user.uid).get();
+
+        if (!adminDoc.exists ||
+            adminDoc.data().status !== "active") {
+
+            showMessage("Administrator permission required.", true);
+            return;
+        }
+
+        await db.collection("consignmentVideos").add({
+
+            title: document.getElementById("videoTitle").value.trim(),
+            customerId: document.getElementById("videoCustomer").value.trim(),
+            videoURL: document.getElementById("videoURL").value.trim(),
+            description: document.getElementById("videoDescription").value.trim(),
+            status: "completed",
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            createdBy: user.uid
+
+        });
+
+        showMessage("Video assigned successfully.");
+        this.reset();
+
+    } catch(error) {
+        showMessage(error.message, true);
+    }
+
+});
+
+// LOGOUT
+
+async function logout() {
+
+    try {
+        await auth.signOut();
+        showMessage("You have successfully logged out.");
+    } catch(error) {
+        showMessage(error.message, true);
+    }
+
+}
+
+</script>
+
+</body>
+</html>
