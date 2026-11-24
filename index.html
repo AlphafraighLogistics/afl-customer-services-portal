@@ -453,15 +453,13 @@ auth.onAuthStateChanged(async function(user) {
 
         }
 
-        const customer = customerDoc.data();
+ const customer = customerDoc.data();
 
-      
-});  
 if (customer.accountStatus !== "active") {
 
-            await auth.signOut();
-            showMessage("Your account is not active. Please contact AFL.", true);
-            return;
+    await auth.signOut();
+    showMessage("Your account is not active. Please contact AFL.", true);
+    return;
 
         }
 
