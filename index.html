@@ -225,7 +225,40 @@ footer {
 
         <h3>Amount to Pay</h3>
         <h2 id="servicePrice">₦0</h2>
+<div class="feature">
+    <h3>Submit Consignment Details</h3>
 
+    <p>Submit the receiver's information and photograph
+       for your AFL consignment video.</p>
+
+    <form id="consignmentForm">
+
+        <label>Receiver's Full Name</label>
+        <input type="text" id="receiverName"
+               placeholder="Enter receiver's full name" required>
+
+        <label>Receiver's Address</label>
+        <textarea id="receiverAddress"
+                  placeholder="Enter receiver's address" required></textarea>
+
+        <label>Consignment Description</label>
+        <textarea id="consignmentDescription"
+                  placeholder="Describe the consignment" required></textarea>
+
+        <label>Receiver's Photograph</label>
+        <input type="file" id="receiverPhoto"
+               accept="image/*" required>
+
+        <label>Receiver's Information Document</label>
+        <input type="file" id="receiverDocument"
+               accept="image/*,.pdf" required>
+
+        <button type="submit">Submit Consignment Details</button>
+
+    </form>
+
+    <p id="consignmentMessage"></p>
+</div>
         <div class="feature">
             <h3>AFL Payment Account</h3>
             <p>Bank: PocketApp</p>
